@@ -21,15 +21,14 @@ input:
 #    path: ./buffer.db
 
 pipeline:
-  threads: 4
+  threads: 1
   processors:
     - mapping: |
         root = this
 
-        meta id = this.data.updateTime${!counter()}
         meta action = this.action
 
-        root.id = this.id
+        root.id = snowflake_id()
         root.doc = this.body
 
 output:
@@ -44,13 +43,10 @@ output:
     index: public.activity # "${OPENSEARCH_PUBLIC_INDEX_NAME:public.activity}"
     action: ${! @action }
     id: ${! @id }
-    type: ""
-    max_in_flight: 64
+    #max_in_flight: 64
     batching:
-      count: 0
-      byte_size: 0
-      period: ""
-      check: ""
+      byte_size: 536870912   # Max of 512 MB per batch by default
+      period: 5s
     basic_auth:
       enabled: false
       username: ""
