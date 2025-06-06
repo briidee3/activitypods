@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# BD 2025
 # Simple script for testing functionality of RedPanda pipeline + OpenSearch DBMS
 
 # Set time to be used for variables involving it
@@ -41,5 +40,19 @@ REDPANDA_PUB_POST_OUTLINE='{
 
 # Test uploading a post directly to the OpenSearch DBMS endpoint
 opensearch_pub_upload_direct() {
-    curl 
+    
+}
+
+# Create an index template in the locally referenced OpenSearch instance with name to give it and path to template JSON file as params
+os_create_index_template() {
+    tmplt=$(cat $2)
+    
+    if [[ $tmplt == *"No such file or directory" ]]; then
+        echo -e "rpos-utils.sh: Template $2 not found. Exiting..."
+        exit -1
+    fi
+
+    response=$(curl -X PUT $tmplt "$OPENSEARCH_HTTP_API_BASE_URL/_index_template/$1")
+
+    echo -e "Response:\n$response"
 }
