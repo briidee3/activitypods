@@ -58,5 +58,6 @@ module.exports = {
   RP_OS_DOWNSTREAM_SUFFIX: '/downstream',
   RP_CLIENT_ID: process.env.RP_CLIENT_ID,
   OS_HTTP_API_BASE_URL: process.env.OS_BASE_URL,
-  OS_PUBLIC_INDEX: process.env.OS_PUBLIC_INDEX
+  OS_PUBLIC_INDEX: process.env.OS_PUBLIC_INDEX,
+  STREAM_REFRESH_LIMIT: process.env.STREAM_REFRESH_LIMIT
 };
