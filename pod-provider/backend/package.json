@@ -17,6 +17,7 @@
     "unlink-semapps-packages": "yarn unlink @semapps/activitypub @semapps/auth @semapps/backup @semapps/core @semapps/crypto @semapps/importer @semapps/inference @semapps/jsonld @semapps/ldp @semapps/middlewares @semapps/migration @semapps/mime-types @semapps/ontologies @semapps/sync @semapps/nodeinfo @semapps/notifications @semapps/solid @semapps/sparql-endpoint @semapps/triplestore @semapps/void @semapps/webacl @semapps/webfinger @semapps/webhooks @semapps/webid"
   },
   "dependencies": {
+    "@opensearch-project/opensearch": "^3.2.0",
     "@rdfjs/formats": "4.0.0",
     "@semapps/activitypub": "1.1.1",
     "@semapps/auth": "1.1.1",
@@ -43,6 +44,7 @@
     "handlebars": "^4.7.7",
     "ioredis": "^4.27.0",
     "jose": "^5.1.1",
+    "kafkajs": "^2.2.4",
     "lodash": "4.17.21",
     "moleculer": "^0.14.19",
     "moleculer-bull": "0.2.8",
