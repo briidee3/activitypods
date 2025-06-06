@@ -1,0 +1,142 @@
+{
+    "settings": {
+        "index": {
+            "number_of_shards": 2,
+            "number_of_replicas": 1
+        }
+    },
+    "mappings": {
+        "properties": {
+            "id": {
+                "type": "text"
+            },
+            "uti": {
+                "type": "text"
+            },
+            "created_at": {
+                "type": "text"
+            },
+            "account": {
+                "type": "object",
+                "properties": {
+                    "$ref": "./account-index.json#/mappings/properties"
+                }
+            },
+            "content": {
+                "type": "text"
+            },
+            "visibility": {
+                "type": "text"
+            },
+            "sensitive": {
+                "type": "boolean"
+            },
+            "spoiler_text": {
+                "type": "text"
+            },
+            "media_attachments": {
+                "type": "array"
+            },
+            "application": {
+                "type": "object",
+                "properties": {
+                    "$ref": "./application-index.json#/mappings/properties"
+                }
+            },
+            "mentions": {
+                "type": "array",
+                "properties": {
+                    "id": {
+                        "type": "text"
+                    },
+                    "username": {
+                        "type": "text"
+                    },
+                    "url": {
+                        "type": "text"
+                    },
+                    "acct": {
+                        "type": "text"
+                    }
+                }
+            },
+            "tags": {
+                "type": "array",
+                "properties": {
+                    "name": {
+                        "type": "text"
+                    },
+                    "url": {
+                        "type": "text"
+                    }
+                }
+            },
+            "emojis": {
+                "type": "array",
+                "properties": {
+                    "$ref": "./emojis-index.json#/mappings/properties"
+                }
+            },
+            "reblogs_count": {
+                "type": "integer"
+            },
+            "favourites_count": {
+                "type": "integer"
+            },
+            "replies_count": {
+                "type": "integer"
+            },
+            "url": {
+                "type": "text"
+            },
+            "in_reply_to_id": {
+                "type": "text"
+            },
+            "reblog": {
+                "type": "object",
+                "properties": {
+                    "$ref": "#/mappings/properties"
+                }
+            },
+            "poll": {
+                "type": "object",
+                "properties": {
+                    "$ref": "./poll-index.json#/mappings/properties"
+                }
+            },
+            "card": {
+                "type": "object",
+                "properties": {
+                    "$ref": "./previewcard-index.json#/mappings/properties"
+                }
+            },
+            "language": {
+                "type": "text"
+            },
+            "text": {
+                "type": "text"
+            },
+            "edited_at": {
+                "type": "text"
+            },
+            "favourited": {
+                "type": "boolean"
+            },
+            "reblogged": {
+                "type": "boolean"
+            },
+            "muted": {
+                "type": "boolean"
+            },
+            "bookmarked": {
+                "type": "boolean"
+            },
+            "pinned": {
+                "type": "boolean"
+            },
+            "filtered": {
+                "type": "boolean"
+            }
+        }
+    }
+}

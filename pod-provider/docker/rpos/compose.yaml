@@ -1,0 +1,306 @@
+name: redpanda-opensearch
+networks:
+  redpanda-net:
+    driver: bridge
+  opensearch-net:
+    driver: bridge
+
+volumes:
+  redpanda-0: null
+  redpanda-1: null
+  redpanda-2: null
+  opensearch-data-0:
+  opensearch-data-1:
+
+services:
+  ##################
+  # Redpanda Brokers #
+  ##################
+  redpanda-0:
+    command:
+      - redpanda
+      - start
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      # Address the broker advertises to clients that connect to the Kafka API.
+      # Use the internal addresses to connect to the Redpanda brokers'
+      # from inside the same Docker network.
+      # Use the external addresses to connect to the Redpanda brokers'
+      # from outside the Docker network.
+      - --advertise-kafka-addr internal://redpanda-0:9092,external://localhost:19092
+      - --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:18082
+      # Address the broker advertises to clients that connect to the HTTP Proxy.
+      - --advertise-pandaproxy-addr internal://redpanda-0:8082,external://localhost:18082
+      - --schema-registry-addr internal://0.0.0.0:8081,external://0.0.0.0:18081
+      # Redpanda brokers use the RPC API to communicate with each other internally.
+      - --rpc-addr redpanda-0:33145
+      - --advertise-rpc-addr redpanda-0:33145
+      # Mode dev-container uses well-known configuration properties for development in containers.
+      - --mode dev-container
+      # Tells Seastar (the framework Redpanda uses under the hood) to use 1 core on the system.
+      - --smp 1
+      - --default-log-level=info
+    image: docker.redpanda.com/redpandadata/redpanda:v24.3.3
+    container_name: redpanda-0
+    # Sets the username and password of the SCRAM superuser
+    environment:
+      #RP_BOOTSTRAP_USER: "superuser:secretpassword"
+      RP_BOOTSTRAP_USER: "${REDPANDA_ADMIN_USER}:${REDPANDA_ADMIN_PASS}"
+    volumes:
+      - redpanda-0:/var/lib/redpanda/data
+      - ./bootstrap.yml:/etc/redpanda/.bootstrap.yaml
+    networks:
+      - redpanda-net
+    ports:
+      - 18081:18081
+      - 18082:18082
+      - 19092:19092
+      - 19644:9644
+    healthcheck:
+      test: ["CMD", "rpk", "cluster", "info", "-X", "user=superuser", "-X", "pass=secretpassword"]
+      #test: ["CMD", "rpk", "cluster", "info", "-X", "user=superuser", "-X", "pass=secretpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  redpanda-1:
+    command:
+      - redpanda
+      - start
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:29092
+      - --advertise-kafka-addr internal://redpanda-1:9092,external://localhost:29092
+      - --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:28082
+      - --advertise-pandaproxy-addr internal://redpanda-1:8082,external://localhost:28082
+      - --schema-registry-addr internal://0.0.0.0:8081,external://0.0.0.0:28081
+      - --rpc-addr redpanda-1:33145
+      - --advertise-rpc-addr redpanda-1:33145
+      - --mode dev-container
+      - --smp 1
+      - --default-log-level=info
+      - --seeds redpanda-0:33145
+    image: docker.redpanda.com/redpandadata/redpanda:v24.3.3
+    container_name: redpanda-1
+    environment:
+      #RP_BOOTSTRAP_USER: "superuser:secretpassword"
+      RP_BOOTSTRAP_USER: "${REDPANDA_ADMIN_USER}:${REDPANDA_ADMIN_PASS}"
+    volumes:
+      - redpanda-1:/var/lib/redpanda/data
+      - ./bootstrap.yml:/etc/redpanda/.bootstrap.yaml
+    networks:
+      - redpanda-net
+    ports:
+      - 28081:28081
+      - 28082:28082
+      - 29092:29092
+      - 29644:9644
+    depends_on:
+      - redpanda-0
+  redpanda-2:
+    command:
+      - redpanda
+      - start
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:39092
+      - --advertise-kafka-addr internal://redpanda-2:9092,external://localhost:39092
+      - --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:38082
+      - --advertise-pandaproxy-addr internal://redpanda-2:8082,external://localhost:38082
+      - --schema-registry-addr internal://0.0.0.0:8081,external://0.0.0.0:38081
+      - --rpc-addr redpanda-2:33145
+      - --advertise-rpc-addr redpanda-2:33145
+      - --mode dev-container
+      - --smp 1
+      - --default-log-level=info
+      - --seeds redpanda-0:33145
+    image: docker.redpanda.com/redpandadata/redpanda:v24.3.3
+    container_name: redpanda-2
+    environment:
+      #RP_BOOTSTRAP_USER: "superuser:secretpassword"
+      RP_BOOTSTRAP_USER: "${REDPANDA_ADMIN_USER}:${REDPANDA_ADMIN_PASS}"
+    volumes:
+      - redpanda-2:/var/lib/redpanda/data
+      - ./bootstrap.yml:/etc/redpanda/.bootstrap.yaml
+    networks:
+      - redpanda-net
+    ports:
+      - 38081:38081
+      - 38082:38082
+      - 39092:39092
+      - 39644:9644
+    depends_on:
+      - redpanda-0
+  ####################
+  # Redpanda Console #
+  ####################
+  console:
+    container_name: redpanda-console
+    image: docker.redpanda.com/redpandadata/console:v2.8.2
+    networks:
+      - redpanda-net
+    entrypoint: /bin/sh
+    command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml; /app/console -config.filepath=${CONFIG_FILEPATH:-/tmp/config.yml}'
+    volumes:
+      - ./config:/tmp/config/
+    environment:
+      CONFIG_FILEPATH: ${CONFIG_FILEPATH:-/tmp/config.yml}
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda-0:9092"]
+          schemaRegistry:
+            enabled: true
+            urls: ["http://redpanda-0:8081"]
+          sasl:
+            enabled: true
+            username: superuser
+            password: secretpassword
+            mechanism: SCRAM-SHA-256
+        redpanda:
+          adminApi:
+            enabled: true
+            urls: ["http://redpanda-0:9644"]
+        console:
+          topicDocumentation:
+            enabled: false
+            git:
+              enabled: false
+              repository:
+                url: https://github.com/redpanda-data/docs
+                branch: main
+                baseDirectory: modules/console/test-resources
+    ports:
+      - 8080:8080
+    depends_on:
+      - redpanda-0
+  ####################
+  # Redpanda Connect #
+  ####################
+  connect:
+    container_name: redpanda-connect
+    image: docker.redpanda.com/redpandadata/connect
+    networks:
+      - redpanda-net
+    entrypoint: /bin/sh
+    depends_on:
+      - redpanda-0
+    #command: -c 'cat ${REDPANDA_UPSTREAM_CONFIG} > /tmp/connect.yml; /redpanda-connect -c /tmp/connect.yml'
+    command: -c 'echo "$$CONNECT_CFG_FILE" > /tmp/connect.yml; /redpanda-connect -c /tmp/connect.yml'
+    #streams -r /etc/redpanda/streams/*.yml -o /tmp/connect.yml
+    environment:
+      REDPANDA_HTTP_BASE_URL: ${REDPANDA_HTTP_BASE_URL}
+      REDPANDA_HTTPS_CERT_FILE: ${REDPANDA_HTTPS_CERT_FILE}
+      REDPANDA_HTTPS_KEY_FILE: ${REDPANDA_HTTPS_KEY_FILE}
+      REDPANDA_NEW_POST_API_PATH: ${REDPANDA_NEW_POST_API_PATH}
+      REDPANDA_QUERY_OPENSEARCH_API_PATH: ${REDPANDA_QUERY_OPENSEARCH_API_PATH}
+      REDPANDA_DYNAMIC_HTTP_API_PREFIX: ${REDPANDA_DYNAMIC_HTTP_API_PREFIX}
+      REDPANDA_PUBLIC_TOPIC_NAME: ${REDPANDA_PUBLIC_TOPIC_NAME}
+      # Enable streams mode
+      STREAMS_ENABLED: true
+      # Set default config to essentially do nothing, since we're using streams mode
+      CONNECT_CFG_FILE: |
+        http:
+          enabled: true
+          address: 0.0.0.0:4195
+          root_path: /api
+          debug_endpoints: true
+        input:
+          generate:
+            mapping: 'root = ""'
+            interval: "1h"
+        output:
+          drop: {}
+    volumes:
+      - ${REDPANDA_STREAMS_DIR}:/etc/redpanda/streams
+  ####################
+  # rpk #
+  ####################
+  redpandarpk:
+    command:
+      - registry
+      - schema
+      - create
+      - activities
+      - --schema
+      - /etc/redpanda/activities-schema.json
+      #- -X user=$${REDPANDA_ADMIN_USER:superuser}
+      #- -X pass=$${REDPANDA_ADMIN_PASS:secretpassword}
+      - -X user=${REDPANDA_ADMIN_USER}
+      - -X pass=${REDPANDA_ADMIN_PASS}
+      - -X registry.hosts=redpanda-0:8081
+      # set retention to be a small amount of time, so as to delete after sending to opensearch
+      #- cluster
+      #- config
+      #- set
+      #- retention.ms=1000;
+      #- curl "${REDPANDA_HTTP_BASE_URL:http://0.0.0.0:4195}/streams/upstream" -o POST --data-binary @${REDPANDA_UPSTREAM_CONFIG};
+      #- curl ${REDPANDA_HTTP_BASE_URL:http://0.0.0.0:4195}/streams/downstream -X POST --data-binary @${REDPANDA_DOWNSTREAM_CONFIG};
+    image: docker.redpanda.com/redpandadata/redpanda:v24.3.3
+    # mount the local directory that contains your schema to the container.
+    volumes:
+      - ${REDPANDA_ACTIVITIES_SCHEMA}:/etc/redpanda/activities-schema.json
+      #- ./$${REDPANDA_UPSTREAM_CONFIG:rpc-upstream-config.yml}:/etc/redpanda/streams/$${REDPANDA_UPSTREAM_CONFIG:rpc-upstream-config.yml}
+    networks:
+      - redpanda-net
+    depends_on:
+      redpanda-0:
+        condition: service_healthy
+
+
+
+  # Opensearch
+  opensearch-0:
+    image: opensearchproject/opensearch:latest
+    container_name: opensearch-0
+    environment:
+      - cluster.name=opensearch-cluster
+      - node.name=opensearch-0
+      - discovery.seed_hosts=opensearch-0,opensearch-1
+      - cluster.initial_cluster_manager_nodes=opensearch-0,opensearch-1
+      - bootstrap.memory_lock=true  # along w/ memlock settings below, disables swapping
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"  # min and max java heap size, recommended 50% system RAM
+      - "DISABLE_INSTALL_DEMO_CONFIG=true" # Prevents execution of bundled demo script which installs demo certificates and security configurations to OpenSearch
+      - "DISABLE_SECURITY_PLUGIN=true"          # disable security plugin, for testing purposes
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # max num of open files for opensearch user
+        hard: 65536
+    volumes:
+      - opensearch-data-0:/usr/share/opensearch/data
+    ports:
+      - 9200:9200
+      - 9600:9600 # required for performance analyzer
+    networks:
+      - opensearch-net
+  opensearch-1:
+    image: opensearchproject/opensearch:latest
+    container_name: opensearch-1
+    environment:
+      - cluster.name=opensearch-cluster
+      - node.name=opensearch-1
+      - discovery.seed_hosts=opensearch-0,opensearch-1
+      - cluster.initial_cluster_manager_nodes=opensearch-0,opensearch-1
+      - bootstrap.memory_lock=true  # along w/ memlock settings below, disables swapping
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"  # min and max java heap size, recommended 50% system RAM
+      - "DISABLE_INSTALL_DEMO_CONFIG=true" # Prevents execution of bundled demo script which installs demo certificates and security configurations to OpenSearch
+      - "DISABLE_SECURITY_PLUGIN=true"          # disable security plugin, for testing purposes
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # max num of open files for opensearch user
+        hard: 65536
+    volumes:
+      - opensearch-data-1:/usr/share/opensearch/data
+    networks:
+      - opensearch-net
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:latest
+    container_name: opensearch-dashboards
+    ports:
+      - 5601:5601
+    expose:
+      - '5601'
+    environment:
+      - 'OPENSEARCH_HOSTS=["http://opensearch-0:9200","http://opensearch-1:9200"]'
+      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true"          # disable security plugin, for testing purposes
+    networks:
+      - opensearch-net

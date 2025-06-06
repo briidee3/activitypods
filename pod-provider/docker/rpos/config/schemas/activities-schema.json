@@ -1,0 +1,62 @@
+{
+  "type": "object",
+  "name": "activities",
+  "fields": [
+    {
+      "name": "@context",
+      "type": "string",
+      "format": "uri",
+      "description": "Context for formatting of object (e.g. \"https://www.w3.org/ns/activitystreams\")"
+    },
+    {
+      "name": "type",
+      "type": "string",
+      "description": "Type of activity"
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "format": "uri",
+      "description": "URI of the activity described by this object"
+    },
+    {
+      "name": "actor",
+      "type": "string",
+      "format": "uri",
+      "description": "URI of the actor of whom created this object"
+    },
+    {
+      "name": "content",
+      "type": "string",
+      "description": "Content of the activity"
+    },
+    {
+      "name": "tag",
+      "type": "object",
+      "description": "Array of tags associated with this object",
+      "fields": [
+        {
+          "name": "type",
+          "type": "string",
+          "default": ""
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uri",
+          "default": ""
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "default": ""
+        }
+      ],
+      "default": [
+        "",
+        "",
+        ""
+      ]
+    }
+  ]
+}
