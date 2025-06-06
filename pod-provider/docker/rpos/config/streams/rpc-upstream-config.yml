@@ -2,14 +2,19 @@
 # Intended to handle post creation, updating, and deletion in conjunction with OpenSearch
 
 input:
-  http_server:
-    #address: ""
-    timeout: 10s
-    rate_limit: ""
-    path: /upstream # "${REDPANDA_NEW_POST_API_PATH:/upstream}"
-    allowed_verbs: [ POST ]
-      #path: "${REDPANDA_REQUEST_HASHTAG_HTTP_API_BASE_URL:/tags}/{hashtag}",
-      #prefix: ${REDPANDA_DYNAMIC_HTTP_API_PREFIX:/api}
+  label: "upstream"
+  # https://docs.redpanda.com/redpanda-connect/components/inputs/redpanda/
+  redpanda:
+    seed_brokers: [ ${REDPANDA_BROKERS:localhost:9092} ]
+    topics: [ public.activity.os.upstream ] #${REDPANDA_PUBLIC_TOPIC_NAME:public.activity.os.upstream} ]
+    regexp_topics: false
+    transaction_isolation_level: read_uncommitted
+    consumer_group: ""
+    auto_replay_nacks: true
+    sasl:
+      - mechanism: SCRAM-SHA-256
+        password: secretpassword #"${REDPANDA_ADMIN_PASS:secretpassword}"
+        username: superuser #"${REDPANDA_ADMIN_USER:superuser}"
 
 #buffer:
 #  sqlite:
