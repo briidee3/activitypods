@@ -37,7 +37,7 @@ module.exports = {
         
         try {
           await ctx.call('rpos.uploadActivity', {
-            ctx: ctx, resource: resource, emitterUri: emitterUri
+            resource: resource, emitterUri: emitterUri
           });
         } catch (e) {
           this.logger.warn(
