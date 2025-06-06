@@ -251,7 +251,7 @@ services:
       - discovery.seed_hosts=opensearch-0,opensearch-1
       - cluster.initial_cluster_manager_nodes=opensearch-0,opensearch-1
       - bootstrap.memory_lock=true  # along w/ memlock settings below, disables swapping
-      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"  # min and max java heap size, recommended 50% system RAM
+      - OPENSEARCH_JAVA_OPTS=${OS_JAVA_OPTS}  # min and max java heap size, recommended 50% system RAM
       - "DISABLE_INSTALL_DEMO_CONFIG=true" # Prevents execution of bundled demo script which installs demo certificates and security configurations to OpenSearch
       - "DISABLE_SECURITY_PLUGIN=true"          # disable security plugin, for testing purposes
     ulimits:
@@ -260,7 +260,7 @@ services:
         hard: -1
       nofile:
         soft: 65536 # max num of open files for opensearch user
-        hard: 65536
+        hard: 131072
     volumes:
       - opensearch-data-0:/usr/share/opensearch/data
     ports:
@@ -286,7 +286,7 @@ services:
         hard: -1
       nofile:
         soft: 65536 # max num of open files for opensearch user
-        hard: 65536
+        hard: 131072
     volumes:
       - opensearch-data-1:/usr/share/opensearch/data
     networks:
