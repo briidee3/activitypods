@@ -130,16 +130,19 @@ services:
   ####################
   console:
     container_name: redpanda-console
-    image: docker.redpanda.com/redpandadata/console:v2.8.2
+    image: docker.redpanda.com/redpandadata/console:latest #v2.8.2
     networks:
       - redpanda-net
     entrypoint: /bin/sh
-    command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml; /app/console -config.filepath=${CONFIG_FILEPATH:-/tmp/config.yml}'
+    #command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml; /app/console -config.filepath=/tmp/config.yml' #${CONFIG_FILEPATH:-/tmp/config.yml}'
+    command: -c '/app/console -config.filepath=/tmp/config.yml'
     volumes:
       - ./config:/tmp/config/
+      - ${RP_CONSOLE_CONFIG_FILE}:/tmp/config.yml
     environment:
       CONFIG_FILEPATH: ${CONFIG_FILEPATH:-/tmp/config.yml}
       CONSOLE_CONFIG_FILE: |
+
         kafka:
           brokers: ["redpanda-0:9092"]
           schemaRegistry:
@@ -150,19 +153,13 @@ services:
             username: superuser
             password: secretpassword
             mechanism: SCRAM-SHA-256
+
+
+        # RP Admin API config
         redpanda:
           adminApi:
             enabled: true
-            urls: ["http://redpanda-0:9644"]
-        console:
-          topicDocumentation:
-            enabled: false
-            git:
-              enabled: false
-              repository:
-                url: https://github.com/redpanda-data/docs
-                branch: main
-                baseDirectory: modules/console/test-resources
+            urls: [ "http://redpanda-0:9644" ]
     ports:
       - 8080:8080
     depends_on:
@@ -190,19 +187,20 @@ services:
       REDPANDA_DYNAMIC_HTTP_API_PREFIX: ${REDPANDA_DYNAMIC_HTTP_API_PREFIX}
       # Enable streams mode
       STREAMS_ENABLED: true
+      CONNECT_CFG_FILE: 
       # Set default config to essentially do nothing, since we're using streams mode
-      CONNECT_CFG_FILE: |
-        http:
-          enabled: true
-          address: 0.0.0.0:4195
-          root_path: /api
-          debug_endpoints: true
-        input:
-          generate:
-            mapping: 'root = ""'
-            interval: "1h"
-        output:
-          drop: {}
+      #CONNECT_CFG_FILE: |
+      #  http:
+      #    enabled: true
+      #    address: 0.0.0.0:4195
+      #    root_path: /api
+      #   debug_endpoints: true
+      #  input:
+      #    generate:
+      #      mapping: 'root = ""'
+      #      interval: "1h"
+      #  output:
+      #    drop: {}
     volumes:
       - ${REDPANDA_STREAMS_DIR}:/etc/redpanda/streams
   ####################
