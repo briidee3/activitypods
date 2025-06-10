@@ -9,6 +9,12 @@
       "description": "Context for formatting of object (e.g. \"https://www.w3.org/ns/activitystreams\")"
     },
     {
+      "name": "instanceType",
+      "type": "string",
+      "format": "uri",
+      "description": "Protocol/specification of the instance of origination"
+    },
+    {
       "name": "type",
       "type": "string",
       "description": "Type of activity"
