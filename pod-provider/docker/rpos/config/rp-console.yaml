@@ -1,0 +1,126 @@
+# RedPanda Console config file (defaults taken from https://docs.redpanda.com/current/console/config/configure-console/)
+
+
+kafka:
+  brokers: ["redpanda-0:9092"]
+  schemaRegistry:
+    enabled: true
+    urls: ["http://redpanda-0:8081"]
+  sasl:
+    enabled: true
+    username: superuser
+    password: secretpassword
+    mechanism: SCRAM-SHA-256
+
+
+# RP Admin API config
+redpanda:
+  adminApi:
+    enabled: true
+    urls: [ "http://redpanda-0:9644" ]
+    #urls:
+    #  - "admin-0.mycompany.com:9644"
+    #  - "admin-1.mycompany.com:9644"
+    #authentication:
+    #  impersonateUser: true
+    # If impersonateUser is false, configure static credentials here:
+    # authentication:
+    #   basic:
+    #     username: "example-user"
+    #     password: "example-password"
+    #startup:
+    #  establishConnectionEagerly: true
+    #  maxRetries: 5
+    #  retryInterval: 1s
+    #  maxRetryInterval: 60s
+    #  backoffMultiplier: 2
+    #tls:
+    #  enabled: true
+    #  caFilepath: "/path/to/ca-cert.pem"
+    #  certFilepath: "/path/to/client-cert.pem"
+    # keyFilepath: "/path/to/client-key.pem"
+    #  insecureSkipTlsVerify: false
+
+# RP Console settings
+console:
+  topicDocumentation:
+    enabled: false
+    git:
+      enabled: false
+      repository:
+        url: https://github.com/redpanda-data/docs
+        branch: main
+        baseDirectory: modules/console/test-resources
+    # git:
+      # enabled: false
+      # repository:
+        # url:
+        # branch: (defaults to primary/default branch)
+        # baseDirectory: .
+      # How often Console pulls the repository to look for new files.
+      # Set to 0 to disable periodic pulls.
+      # refreshInterval: 1m
+      # To use GitHub's personal access tokens, use `token`
+      # for the username and pass the token as password.
+      # basicAuth:
+        # enabled: true
+        # username: token
+        # password:
+      # ssh:
+        # enabled: false
+        # username:
+        # privateKey:
+        # privateKeyFilepath:
+        # passphrase:
+
+
+#----------------------------------------------------------------------------
+# Server settings
+#----------------------------------------------------------------------------
+#server:
+#  listenAddress: "0.0.0.0"
+#  listenPort: 8080
+#  httpsListenPort: 8081
+#  #advertisedHttpsListenPort: 443
+#  gracefulShutdownTimeout: 30s
+#  readTimeout: 30s
+#  writeTimeout: 30s
+#  idleTimeout: 30s
+#  compressionLevel: 4
+#  basePath: ""
+#  setBasePathFromXForwardedPrefix: true
+#  stripPrefix: true
+#  tls:
+#    enabled: false
+#    # Uncomment and configure if HTTPS is required:
+#    # certFilepath: "/path/to/https-cert.pem"
+#    # keyFilepath: "/path/to/https-key.pem"
+#  allowedOrigins: []
+
+#----------------------------------------------------------------------------
+# Logger settings
+#----------------------------------------------------------------------------
+logger:
+  level: info
+
+#----------------------------------------------------------------------------
+# Developer settings
+#----------------------------------------------------------------------------
+
+# Only relevant for developers who want to run the frontend separately.
+# Uncomment the following line to serve the frontend separately.
+# serveFrontend: true
+
+#----------------------------------------------------------------------------
+# Metrics settings
+#----------------------------------------------------------------------------
+
+# Prefix for all exported Prometheus metrics.
+# Uncomment and set your metrics namespace.
+# metricsNamespace: "console"
+
+#----------------------------------------------------------------------------
+# Analytics / telemetry (optional)
+#----------------------------------------------------------------------------
+analytics:
+  enabled: false
