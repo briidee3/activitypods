@@ -1,7 +1,7 @@
-# Enable SASL authentication for the Kafka API
+# Enable SASL authentication for the RedPanda Kafka API
 # Allow topics to be created on first access
 superusers:
   - superuser
-enable_sasl: false
+enable_sasl: false # Enable and set up for production environments
 auto_create_topics_enabled: true
 data_transforms_enabled: true
