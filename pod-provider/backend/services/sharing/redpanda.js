@@ -18,10 +18,6 @@ const rpTopics = {
   "translate": "",
 }
 
-// OpenSearch configuration
-//const opensearchAddress = CONFIG.OS_HTTP_API_BASE_URL;
-//const indexName = CONFIG.OS_PUBLIC_INDEX;
-
 module.exports = {
   name: 'rpos',
   settings: {
@@ -37,7 +33,7 @@ module.exports = {
   },
   methods: {
     // Automatically create post in OpenSearch on activity emission
-    async uploadActivity(ctx, resource, emitterUri) {
+    async uploadActivity(resource, emitterUri) {
       try {
         //const date = new Date();
         const activityUri = encodeURIComponent(resource.id || resource['@id']);
@@ -51,6 +47,7 @@ module.exports = {
           type: "Note",
           id: activityUri,
           actor: encodeURIComponent(emitterUri),
+          content: resource.content,
           tag: resource.tag,
           published: date.toISOString(),
           updateTime: Date.now()
