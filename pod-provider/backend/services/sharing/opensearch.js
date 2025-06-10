@@ -25,7 +25,7 @@ module.exports = {
         path: '/public',
         aliases: {
           'GET /': 'opensearch.getRecent',
-          'GET /:max_id:since_id': 'opensearch.getRecentBetween'
+          'GET /:search_after': 'opensearch.getRecentBetween'
         }
       },
       {
@@ -33,7 +33,9 @@ module.exports = {
         path: '/tags',
         aliases: {
           'GET /': 'opensearch.getTags',
-          'GET /:id': 'opensearch.getTag'
+          'GET /:search_after': 'opensearch.getTags',
+          'GET /:id': 'opensearch.getTag',
+          'GET /:id:search_after': 'opensearch.getTag'
         }
       }
     ]
@@ -51,22 +53,31 @@ module.exports = {
       },*/
     });
   },
+  // TODO: Add functionality for getting from other OpenSearch instances 
+  // TODO: Add functionality for getting from other protocols via a RedPanda translation pipeline (rather than fetching from OpenSearch)
   actions: {
-    getRecent(ctx) {
-      // Get the id of the most recent post in OpenSearch
-      this.client.
+    getRecent(ctx, search_after = null) {
+      if (search_after) {
 
-      this.getRecentBetween(Date.now(),  - CONFIG.STREAM_REFRESH_LIMIT);
-    },
-    getRecentBetween(ctx, max_id, since_id) {
-      // Get public posts from OpenSearch. More info: https://docs.opensearch.org/docs/latest/api-reference/search-apis/search/
+      } else {
 
+      }
     },
-    getTags(ctx) {
+    getTags(ctx, search_after = null) {
       // Get N tags with the most posts in OpenSearch
+      if (search_after) {
+        
+      } else {
+
+      }
     },
-    getTag(ctx, id) {
+    getTag(ctx, id, search_after = null) {
       // Get recent posts from a given tag
+      if (search_after) {
+
+      } else {
+
+      }
     }
   },
   methods: {
